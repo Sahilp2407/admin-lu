@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if the user is an admin
+    function isAdmin() {
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Rules for 'enquiries' collection
+    match /enquiries/{enquiryId} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Rules for 'admins' collection (optional: allow admins to read about other admins)
+    match /admins/{adminId} {
+      allow read: if request.auth != null && request.auth.uid == adminId;
+    }
+  }
+}
