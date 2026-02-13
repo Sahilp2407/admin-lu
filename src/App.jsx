@@ -20,7 +20,18 @@ import {
   Trash2,
   Star,
   LogOut,
-  Lock
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  User,
+  MapPin,
+  Briefcase,
+  Target,
+  CheckCircle2,
+  Circle,
+  XCircle
 } from 'lucide-react';
 import './App.css';
 
@@ -43,6 +54,7 @@ import {
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -59,15 +71,14 @@ const Login = ({ onLogin }) => {
       // Auth state listener in App will handle the rest
     } catch (err) {
       console.error("Login Error Full Object:", err);
-      // Show more specific error messages
       if (err.code === 'auth/invalid-credential') {
         setError('Invalid Email or Password. Please check your credentials.');
       } else if (err.code === 'auth/user-not-found') {
-        setError('User not found. Please create the user in Firebase Console.');
+        setError('User not found.');
       } else if (err.code === 'auth/wrong-password') {
         setError('Incorrect password.');
       } else if (err.code === 'auth/too-many-requests') {
-        setError('Too many failed attempts. Please try again later.');
+        setError('Too many failed attempts. Try again later.');
       } else {
         setError(err.message || 'Failed to sign in');
       }
@@ -77,51 +88,77 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      background: '#f1f5f9'
-    }}>
-      <div className="content-card animate-fade-in" style={{ width: '400px', padding: '2.5rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div className="lu-logo" style={{ margin: '0 auto 1rem', width: '60px', height: '60px', fontSize: '24px' }}>LU</div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1e293b' }}>Admin Login</h2>
-          <p style={{ color: '#64748b' }}>Sign in to access the dashboard</p>
-        </div>
+    <div className="login-screen">
+      <div className="login-header animate-fade-in">
+        <div className="lu-logo-large">LU</div>
+        <h1>Welcome Back</h1>
+        <p>Sign in to access the admin dashboard</p>
+      </div>
 
+      <div className="login-card animate-fade-in" style={{ animationDelay: '0.1s' }}>
         {error && (
-          <div style={{ background: '#fef2f2', color: '#ef4444', padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.875rem' }}>
+          <div style={{
+            background: '#fef2f2',
+            color: '#ef4444',
+            padding: '1rem',
+            borderRadius: '12px',
+            marginBottom: '1.5rem',
+            fontSize: '0.9rem',
+            fontWeight: '500',
+            border: '1px solid #fee2e2'
+          }}>
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div className="form-group">
-            <label style={{ fontSize: '0.875rem', fontWeight: '500', color: '#475569', marginBottom: '0.5rem', display: 'block' }}>Email</label>
-            <input
-              type="email"
-              required
-              className="form-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@example.com"
-            />
+        <form onSubmit={handleSubmit}>
+          <div className="input-container">
+            <label>Email Address</label>
+            <div className="input-wrapper">
+              <Mail className="input-icon" size={20} />
+              <input
+                type="email"
+                required
+                className="login-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@example.com"
+              />
+            </div>
           </div>
-          <div className="form-group">
-            <label style={{ fontSize: '0.875rem', fontWeight: '500', color: '#475569', marginBottom: '0.5rem', display: 'block' }}>Password</label>
-            <input
-              type="password"
-              required
-              className="form-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-            />
+
+          <div className="input-container">
+            <label>Password</label>
+            <div className="input-wrapper">
+              <Lock className="input-icon" size={20} />
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                className="login-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
-          <button type="submit" className="primary-btn" disabled={loading} style={{ marginTop: '0.5rem', justifyContent: 'center' }}>
-            {loading ? 'Signing in...' : 'Sign In'}
+
+          <button
+            type="submit"
+            className="login-submit-btn"
+            disabled={loading}
+          >
+            {loading ? 'Authenticating...' : (
+              <>
+                Sign in <ArrowRight size={20} />
+              </>
+            )}
           </button>
         </form>
       </div>
@@ -282,50 +319,63 @@ const UserFormModal = ({ user, onClose, onSave }) => {
   );
 };
 
-const UserDetailModal = ({ user, onClose, onEdit }) => {
+const UserDetailModal = ({ user, onClose }) => {
   if (!user) return null;
+
+  const InfoBox = ({ label, value, bgColor, labelColor, textColor = '#1e293b' }) => (
+    <div style={{
+      background: bgColor,
+      padding: '1rem',
+      borderRadius: '12px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '0.4rem',
+      border: '1px solid rgba(0,0,0,0.02)'
+    }}>
+      <label style={{ fontSize: '0.65rem', fontWeight: '700', textTransform: 'uppercase', color: labelColor, letterSpacing: '0.05em' }}>{label}</label>
+      <span style={{ fontSize: '0.95rem', fontWeight: '600', color: textColor }}>{value || 'Not provided'}</span>
+    </div>
+  );
+
+  const SectionTitle = ({ icon: Icon, title, color = '#2563eb' }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '1.5rem', marginBottom: '1rem' }}>
+      <Icon size={18} color={color} />
+      <h3 style={{ fontSize: '1rem', fontWeight: '700', color: '#1e293b' }}>{title}</h3>
+    </div>
+  );
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="user-detail-card animate-fade-in" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <div className="user-avatar-large" style={{ background: 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))' }}>
-            {user.name ? user.name.charAt(0) : '?'}
-          </div>
-          <button className="close-btn" onClick={onClose}>&times;</button>
+      <div className="user-detail-card animate-fade-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '850px', width: '95%', maxHeight: '90vh', overflowY: 'auto', padding: '2.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderLeft: '4px solid #2563eb', paddingLeft: '1rem', marginBottom: '2.5rem' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1e293b' }}>Enquiry Submission Details</h2>
         </div>
 
-        <div className="modal-body">
-          <h2 className="detail-name">{user.name || 'No Name'}</h2>
-          <p className="detail-designation">{user.designation || 'User'}</p>
-          <div className="org-badge">{user.org || 'N/A'}</div>
-
-          <div className="details-grid">
-            <div className="detail-item">
-              <label>Email</label>
-              <span>{user.email}</span>
-            </div>
-            <div className="detail-item">
-              <label>Phone Number</label>
-              <span>{user.phone}</span>
-            </div>
-            <div className="detail-item">
-              <label>Location</label>
-              <span>{user.city}, {user.state}</span>
-            </div>
-            <div className="detail-item">
-              <label>Designation</label>
-              <span>{user.designation}</span>
-            </div>
-            <div className="detail-item">
-              <label>Organization</label>
-              <span>{user.org}</span>
-            </div>
-          </div>
+        {/* Personal Details */}
+        <SectionTitle icon={User} title="Personal Details" />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+          <InfoBox label="Full Name" value={user.name} bgColor="#eff6ff" labelColor="#2563eb" />
+          <InfoBox label="Email Address" value={user.email} bgColor="#f0fdf4" labelColor="#22c55e" />
+          <InfoBox label="Mobile Number" value={user.phone} bgColor="#f5f3ff" labelColor="#8b5cf6" />
         </div>
 
-        <div className="modal-footer">
-          <button className="secondary-btn" onClick={onClose} style={{ width: '100%' }}>Close</button>
+        {/* Professional Details */}
+        <SectionTitle icon={Briefcase} title="Professional Details" />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+          <InfoBox label="Organization" value={user.org} bgColor="#fdf2f8" labelColor="#db2777" />
+          <InfoBox label="Current Designation" value={user.designation} bgColor="#fefce8" labelColor="#ca8a04" />
+          <InfoBox label="Current CTC" value={user.currentCTC || 'Not answered'} bgColor="#eff6ff" labelColor="#2563eb" />
+        </div>
+
+        {/* Location Information */}
+        <SectionTitle icon={MapPin} title="Location Information" />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+          <InfoBox label="State" value={user.state} bgColor="#fff7ed" labelColor="#f97316" />
+          <InfoBox label="City" value={user.city} bgColor="#f0fdfa" labelColor="#14b8a6" />
+        </div>
+
+        <div style={{ marginTop: '3rem', display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem' }}>
+          <button className="primary-btn" onClick={onClose} style={{ width: '140px', padding: '0.85rem' }}>Close Details</button>
         </div>
       </div>
     </div>
@@ -551,91 +601,124 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser }) => {
   );
 
   return (
-    <div className="animate-fade-in">
-      <div className="content-card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Enquiries Management</h3>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <div style={{ position: 'relative' }}>
-              <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-              <input
-                type="text"
-                placeholder="Search enquiries..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  padding: '0.6rem 1rem 0.6rem 2.5rem',
-                  borderRadius: '10px',
-                  border: '1px solid var(--border-color)',
-                  outline: 'none',
-                  width: '240px',
-                  backgroundColor: '#f8fafc'
-                }}
-              />
-            </div>
-            {/* <button className="primary-btn" onClick={onAddUser}><Plus size={18} style={{ marginRight: '8px' }} /> Add User</button> */}
+    <div className="animate-fade-in" style={{ padding: '0 0.5rem' }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '2.5rem',
+        padding: '1rem',
+        background: 'rgba(255, 255, 255, 0.5)',
+        borderRadius: '16px',
+        backdropFilter: 'blur(8px)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderLeft: '4px solid #2563eb', paddingLeft: '1rem' }}>
+          <div>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#1e293b', lineHeight: '1.2' }}>Enquiry Management</h2>
+            <p style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: '500', marginTop: '4px' }}>Manage and view user admission queries</p>
           </div>
         </div>
 
-        <table className="user-table">
-          <thead>
+        <div style={{ position: 'relative', width: '320px' }}>
+          <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+          <input
+            type="text"
+            placeholder="Search by name, email or org..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.85rem 1rem 0.85rem 3rem',
+              borderRadius: '14px',
+              border: '1.5px solid #e2e8f0',
+              outline: 'none',
+              backgroundColor: 'white',
+              fontSize: '0.95rem',
+              color: '#1e293b',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
+            }}
+            className="search-input-premium"
+          />
+        </div>
+      </div>
+
+      <div className="content-card" style={{ padding: '0', overflow: 'hidden', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05)' }}>
+        <table className="user-table" style={{ width: '100%' }}>
+          <thead style={{ background: '#f8fafc' }}>
             <tr>
-              <th>Name</th>
-              <th>Designation</th>
-              <th>Organization</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th style={{ padding: '1.25rem 2rem' }}>NAME & CONTACT</th>
+              <th>DESIGNATION</th>
+              <th>ORGANIZATION</th>
+              <th style={{ textAlign: 'center' }}>ACTION</th>
             </tr>
           </thead>
           <tbody>
             {filteredUsers.length > 0 ? filteredUsers.map((user) => (
-              <tr key={user.id} className="user-row">
-                <td>
+              <tr key={user.id} className="user-row" style={{ borderBottom: '1px solid #f1f5f9', transition: 'background-color 0.2s ease' }}>
+                <td style={{ padding: '1.25rem 2rem' }}>
                   <div
-                    style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer' }}
                     onClick={() => setSelectedUser(user)}
                     className="user-name-cell"
                   >
                     <div style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '50%',
-                      background: 'linear-gradient(45deg, var(--primary-color), var(--secondary-color))',
+                      width: '42px',
+                      height: '42px',
+                      borderRadius: '12px',
+                      background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '13px',
-                      fontWeight: 'bold',
-                      color: 'white',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                      fontSize: '15px',
+                      fontWeight: '800',
+                      color: '#2563eb',
+                      boxShadow: 'inset 0 2px 4px rgba(37, 99, 235, 0.05)',
+                      border: '1px solid rgba(37, 99, 235, 0.1)'
                     }}>
                       {user.name ? user.name.charAt(0) : '?'}
                     </div>
                     <div>
-                      <div style={{ fontWeight: '600', color: '#1e293b' }}>{user.name || 'No Name'}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{user.email || 'No Email'}</div>
+                      <div style={{ fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>{user.name || 'No Name'}</div>
+                      <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '500', marginTop: '2px' }}>{user.email || 'No Email'}</div>
                     </div>
                   </div>
                 </td>
-                <td style={{ fontSize: '0.9rem', color: '#475569' }}>{user.designation || '-'}</td>
-                <td style={{ fontSize: '0.9rem', color: '#475569' }}>{user.org || '-'}</td>
-                <td>
-                  <span className={`badge ${user.status === 'Active' ? 'badge-active' : 'badge-inactive'}`}>
-                    {user.status || 'Active'}
-                  </span>
-                </td>
-                <td>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button className="delete-icon-btn" onClick={(e) => { e.stopPropagation(); onDeleteUser(user.id); }} style={{ background: 'none', border: 'none', color: '#ef4444', padding: '0.5rem', cursor: 'pointer' }}>
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+                <td style={{ fontSize: '0.9rem', color: '#475569', fontWeight: '600' }}>{user.designation || '-'}</td>
+                <td style={{ fontSize: '0.9rem', color: '#475569', fontWeight: '500' }}>{user.org || '-'}</td>
+                <td style={{ textAlign: 'center' }}>
+                  <button
+                    className="view-details-btn"
+                    onClick={() => setSelectedUser(user)}
+                    style={{
+                      background: '#2563eb',
+                      border: 'none',
+                      color: 'white',
+                      padding: '0.65rem 1.25rem',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      fontSize: '0.85rem',
+                      fontWeight: '700',
+                      boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)',
+                      margin: '0 auto',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <Eye size={16} />
+                    View Details
+                  </button>
                 </td>
               </tr>
             )) : (
               <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
-                  No enquiries found.
+                <td colSpan="4" style={{ textAlign: 'center', padding: '4rem', color: '#94a3b8' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                    <Search size={48} strokeWidth={1} style={{ opacity: 0.2 }} />
+                    <span style={{ fontWeight: '500', fontSize: '1.1rem' }}>No enquiries found Matching your search.</span>
+                  </div>
                 </td>
               </tr>
             )}
@@ -698,10 +781,11 @@ function App() {
             name: u.name || u.fullName || 'No Name',
             email: u.email || 'No Email',
             phone: u.phone || u.phoneNumber || 'N/A',
-            state: u.state || 'N/A',
-            city: u.city || 'N/A',
+            state: u.state || u.selectState || 'N/A',
+            city: u.city || u.selectCity || 'N/A',
             org: u.org || u.organization || 'N/A',
-            designation: u.designation || u.role || 'User',
+            designation: u.designation || u.currentDesignation || u.role || 'User',
+            currentCTC: u.currentCTC || u.ctc || null,
             status: u.status || 'Active'
           }));
 
@@ -816,16 +900,14 @@ function App() {
       {/* Main Content Area */}
       <main className="main-content">
         <div className="content-container">
-          <header className="page-header">
-            <h1 className="page-title">
-              {activeTab === 'overview' ? 'Overview' : 'Enquiry Management'}
-            </h1>
-            {activeTab === 'overview' && (
+          {activeTab === 'overview' && (
+            <header className="page-header">
+              <h1 className="page-title">Overview</h1>
               <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
                 Welcome back, {user.email}
               </div>
-            )}
-          </header>
+            </header>
+          )}
 
           {activeTab === 'overview' ? (
             <OverviewContent users={users} />
