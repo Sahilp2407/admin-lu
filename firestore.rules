@@ -4,9 +4,11 @@ service cloud.firestore {
     
     // Helper function to check if the user is an admin
     function isAdmin() {
-      return request.auth != null && 
-             exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'admin';
+      return request.auth != null && (
+        request.auth.token.email == 'sahilp@letsupgrade.in' ||
+        (exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.role == 'admin')
+      );
     }
 
     // Rules for 'enquiries' collection

@@ -31,7 +31,9 @@ import {
   Target,
   CheckCircle2,
   Circle,
-  XCircle
+  XCircle,
+  FileSpreadsheet,
+  Calendar
 } from 'lucide-react';
 import './App.css';
 
@@ -357,6 +359,7 @@ const UserDetailModal = ({ user, onClose }) => {
           <InfoBox label="Full Name" value={user.name} bgColor="#eff6ff" labelColor="#2563eb" />
           <InfoBox label="Email Address" value={user.email} bgColor="#f0fdf4" labelColor="#22c55e" />
           <InfoBox label="Mobile Number" value={user.phone} bgColor="#f5f3ff" labelColor="#8b5cf6" />
+          <InfoBox label="Registration Date" value={user.date} bgColor="#fff1f2" labelColor="#e11d48" />
         </div>
 
         {/* Professional Details */}
@@ -372,6 +375,16 @@ const UserDetailModal = ({ user, onClose }) => {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
           <InfoBox label="State" value={user.state} bgColor="#fff7ed" labelColor="#f97316" />
           <InfoBox label="City" value={user.city} bgColor="#f0fdfa" labelColor="#14b8a6" />
+        </div>
+
+        {/* Marketing Information */}
+        <SectionTitle icon={Target} title="Marketing Information" />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+          <InfoBox label="UTM Source" value={user.utm_source} bgColor="#f3e8ff" labelColor="#9333ea" />
+          <InfoBox label="UTM Medium" value={user.utm_medium} bgColor="#f3e8ff" labelColor="#9333ea" />
+          <InfoBox label="UTM Campaign" value={user.utm_campaign} bgColor="#f3e8ff" labelColor="#9333ea" />
+          <InfoBox label="UTM Term" value={user.utm_term} bgColor="#f3e8ff" labelColor="#9333ea" />
+          <InfoBox label="UTM Content" value={user.utm_content} bgColor="#f3e8ff" labelColor="#9333ea" />
         </div>
 
         <div style={{ marginTop: '3rem', display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid #f1f5f9', paddingTop: '1.5rem' }}>
@@ -474,6 +487,51 @@ const OverviewContent = ({ users }) => {
             )}
           </div>
         ))}
+      </div>
+
+      {/* -- New Paid vs Unpaid Section -- */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '2rem', marginBottom: '1rem' }}>
+        {/* Unpaid Card */}
+        <div className="stats-card" style={{ background: 'linear-gradient(135deg, #ecfccb 0%, #f7fee7 100%)', border: '1px solid #d9f99d' }}>
+          <div className="card-label" style={{ color: '#3f6212', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>Unpaid Traffic</span>
+            <span style={{ fontSize: '0.75rem', background: '#d9f99d', padding: '2px 8px', borderRadius: '12px' }}>Organic</span>
+          </div>
+          <div className="card-value" style={{ color: '#365314' }}>
+            {users.filter(u => (!u.utm_source || u.utm_source === 'N/A')).length}
+          </div>
+          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.4rem', color: '#4d7c0f' }}>
+              <span>LetsUpgrade</span>
+              <span style={{ fontWeight: '700' }}>{users.filter(u => (!u.utm_source || u.utm_source === 'N/A') && (!u.utm_campaign || !u.utm_campaign.toLowerCase().includes('gs'))).length}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#4d7c0f' }}>
+              <span>GrowthSchool</span>
+              <span style={{ fontWeight: '700' }}>{users.filter(u => (!u.utm_source || u.utm_source === 'N/A') && (u.utm_campaign && u.utm_campaign.toLowerCase().includes('gs'))).length}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Paid Card */}
+        <div className="stats-card" style={{ background: 'linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%)', border: '1px solid #c7d2fe' }}>
+          <div className="card-label" style={{ color: '#3730a3', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>Paid Traffic</span>
+            <span style={{ fontSize: '0.75rem', background: '#c7d2fe', padding: '2px 8px', borderRadius: '12px' }}>Ad Campaigns</span>
+          </div>
+          <div className="card-value" style={{ color: '#312e81' }}>
+            {users.filter(u => u.utm_source && u.utm_source !== 'N/A').length}
+          </div>
+          <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.4rem', color: '#4338ca' }}>
+              <span>LetsUpgrade</span>
+              <span style={{ fontWeight: '700' }}>{users.filter(u => (u.utm_source && u.utm_source !== 'N/A') && (!u.utm_campaign || !u.utm_campaign.toLowerCase().includes('gs'))).length}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#4338ca' }}>
+              <span>GrowthSchool</span>
+              <span style={{ fontWeight: '700' }}>{users.filter(u => (u.utm_source && u.utm_source !== 'N/A') && (u.utm_campaign && u.utm_campaign.toLowerCase().includes('gs'))).length}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="section-header">
@@ -593,6 +651,7 @@ const OverviewContent = ({ users }) => {
 const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser }) => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'sheet'
 
   const filteredUsers = users.filter(user =>
     (user.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -619,111 +678,186 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser }) => {
           </div>
         </div>
 
-        <div style={{ position: 'relative', width: '320px' }}>
-          <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-          <input
-            type="text"
-            placeholder="Search by name, email or org..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div style={{ position: 'relative', width: '320px' }}>
+            <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            <input
+              type="text"
+              placeholder="Search by name, email or org..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '0.85rem 1rem 0.85rem 3rem',
+                borderRadius: '14px',
+                border: '1.5px solid #e2e8f0',
+                outline: 'none',
+                backgroundColor: 'white',
+                fontSize: '0.95rem',
+                color: '#1e293b',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
+              }}
+              className="search-input-premium"
+            />
+          </div>
+          <button
+            onClick={() => setViewMode(viewMode === 'list' ? 'sheet' : 'list')}
+            className="primary-btn"
             style={{
-              width: '100%',
-              padding: '0.85rem 1rem 0.85rem 3rem',
-              borderRadius: '14px',
-              border: '1.5px solid #e2e8f0',
-              outline: 'none',
-              backgroundColor: 'white',
-              fontSize: '0.95rem',
-              color: '#1e293b',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.85rem 1.25rem',
+              whiteSpace: 'nowrap',
+              background: viewMode === 'sheet' ? '#1e293b' : '#10b981',
+              boxShadow: viewMode === 'sheet' ? '0 4px 12px rgba(30, 41, 59, 0.2)' : '0 4px 12px rgba(16, 185, 129, 0.2)'
             }}
-            className="search-input-premium"
-          />
+          >
+            {viewMode === 'list' ? (
+              <>
+                <FileSpreadsheet size={18} /> View in Sheets
+              </>
+            ) : (
+              <>
+                <LayoutDashboard size={18} /> View List
+              </>
+            )}
+          </button>
         </div>
       </div>
 
       <div className="content-card" style={{ padding: '0', overflow: 'hidden', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05)' }}>
-        <table className="user-table" style={{ width: '100%' }}>
-          <thead style={{ background: '#f8fafc' }}>
-            <tr>
-              <th style={{ padding: '1.25rem 2rem' }}>NAME & CONTACT</th>
-              <th>DESIGNATION</th>
-              <th>ORGANIZATION</th>
-              <th style={{ textAlign: 'center' }}>ACTION</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.length > 0 ? filteredUsers.map((user) => (
-              <tr key={user.id} className="user-row" style={{ borderBottom: '1px solid #f1f5f9', transition: 'background-color 0.2s ease' }}>
-                <td style={{ padding: '1.25rem 2rem' }}>
-                  <div
-                    style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer' }}
-                    onClick={() => setSelectedUser(user)}
-                    className="user-name-cell"
-                  >
-                    <div style={{
-                      width: '42px',
-                      height: '42px',
-                      borderRadius: '12px',
-                      background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '15px',
-                      fontWeight: '800',
-                      color: '#2563eb',
-                      boxShadow: 'inset 0 2px 4px rgba(37, 99, 235, 0.05)',
-                      border: '1px solid rgba(37, 99, 235, 0.1)'
-                    }}>
-                      {user.name ? user.name.charAt(0) : '?'}
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>{user.name || 'No Name'}</div>
-                      <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '500', marginTop: '2px' }}>{user.email || 'No Email'}</div>
-                    </div>
-                  </div>
-                </td>
-                <td style={{ fontSize: '0.9rem', color: '#475569', fontWeight: '600' }}>{user.designation || '-'}</td>
-                <td style={{ fontSize: '0.9rem', color: '#475569', fontWeight: '500' }}>{user.org || '-'}</td>
-                <td style={{ textAlign: 'center' }}>
-                  <button
-                    className="view-details-btn"
-                    onClick={() => setSelectedUser(user)}
-                    style={{
-                      background: '#2563eb',
-                      border: 'none',
-                      color: 'white',
-                      padding: '0.65rem 1.25rem',
-                      borderRadius: '12px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      fontSize: '0.85rem',
-                      fontWeight: '700',
-                      boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)',
-                      margin: '0 auto',
-                      transition: 'all 0.2s ease'
-                    }}
-                  >
-                    <Eye size={16} />
-                    View Details
-                  </button>
-                </td>
-              </tr>
-            )) : (
+        {viewMode === 'list' ? (
+          <table className="user-table" style={{ width: '100%' }}>
+            <thead style={{ background: '#f8fafc' }}>
               <tr>
-                <td colSpan="4" style={{ textAlign: 'center', padding: '4rem', color: '#94a3b8' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                    <Search size={48} strokeWidth={1} style={{ opacity: 0.2 }} />
-                    <span style={{ fontWeight: '500', fontSize: '1.1rem' }}>No enquiries found Matching your search.</span>
-                  </div>
-                </td>
+                <th style={{ padding: '1.25rem 2rem' }}>NAME & CONTACT</th>
+                <th>DESIGNATION</th>
+                <th>ORGANIZATION</th>
+                <th style={{ textAlign: 'center' }}>ACTION</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredUsers.length > 0 ? filteredUsers.map((user) => (
+                <tr key={user.id} className="user-row" style={{ borderBottom: '1px solid #f1f5f9', transition: 'background-color 0.2s ease' }}>
+                  <td style={{ padding: '1.25rem 2rem' }}>
+                    <div
+                      style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer' }}
+                      onClick={() => setSelectedUser(user)}
+                      className="user-name-cell"
+                    >
+                      <div style={{
+                        width: '42px',
+                        height: '42px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '15px',
+                        fontWeight: '800',
+                        color: '#2563eb',
+                        boxShadow: 'inset 0 2px 4px rgba(37, 99, 235, 0.05)',
+                        border: '1px solid rgba(37, 99, 235, 0.1)'
+                      }}>
+                        {user.name ? user.name.charAt(0) : '?'}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>{user.name || 'No Name'}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '500', marginTop: '2px' }}>{user.email || 'No Email'}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td style={{ fontSize: '0.9rem', color: '#475569', fontWeight: '600' }}>{user.designation || '-'}</td>
+                  <td style={{ fontSize: '0.9rem', color: '#475569', fontWeight: '500' }}>{user.org || '-'}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    <button
+                      className="view-details-btn"
+                      onClick={() => setSelectedUser(user)}
+                      style={{
+                        background: '#2563eb',
+                        border: 'none',
+                        color: 'white',
+                        padding: '0.65rem 1.25rem',
+                        borderRadius: '12px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.75rem',
+                        fontSize: '0.85rem',
+                        fontWeight: '700',
+                        boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)',
+                        margin: '0 auto',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <Eye size={16} />
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: 'center', padding: '4rem', color: '#94a3b8' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                      <Search size={48} strokeWidth={1} style={{ opacity: 0.2 }} />
+                      <span style={{ fontWeight: '500', fontSize: '1.1rem' }}>No enquiries found Matching your search.</span>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        ) : (
+          <div style={{ overflowX: 'auto', width: '100%' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', backgroundColor: 'white' }}>
+              <thead>
+                <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #e2e8f0' }}>
+                  {['Date', 'Name', 'Email', 'Phone', 'Designation', 'Organization', 'State', 'City', 'CTC', 'UTM Source', 'UTM Medium', 'UTM Campaign', 'UTM Term', 'UTM Content'].map((header) => (
+                    <th key={header} style={{
+                      padding: '0.75rem',
+                      textAlign: 'left',
+                      fontWeight: '700',
+                      color: '#475569',
+                      borderRight: '1px solid #e2e8f0',
+                      whiteSpace: 'nowrap',
+                      borderBottom: '1px solid #cbd5e1'
+                    }}>
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filteredUsers.length > 0 ? filteredUsers.map((user, index) => (
+                  <tr key={user.id} style={{ backgroundColor: index % 2 === 0 ? 'white' : '#f8fafc' }}>
+                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '600', whiteSpace: 'nowrap' }}>{user.date}</td>
+                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '600', whiteSpace: 'nowrap' }}>{user.name}</td>
+                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.email}</td>
+                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569', whiteSpace: 'nowrap' }}>{user.phone}</td>
+                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.designation}</td>
+                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.org}</td>
+                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.state}</td>
+                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.city}</td>
+                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.currentCTC || '-'}</td>
+                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_source}</td>
+                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_medium}</td>
+                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_campaign}</td>
+                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_term}</td>
+                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_content}</td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan="14" style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
+                      No data found to display in sheet view.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {selectedUser && (
@@ -786,7 +920,13 @@ function App() {
             org: u.org || u.organization || 'N/A',
             designation: u.designation || u.currentDesignation || u.role || 'User',
             currentCTC: u.currentCTC || u.ctc || null,
-            status: u.status || 'Active'
+            status: u.status || 'Active',
+            utm_source: u.utm_source || 'N/A',
+            utm_medium: u.utm_medium || 'N/A',
+            utm_campaign: u.utm_campaign || 'N/A',
+            utm_term: u.utm_term || 'N/A',
+            utm_content: u.utm_content || 'N/A',
+            date: u.createdAt ? new Date(u.createdAt.seconds * 1000).toLocaleDateString() : (u.timestamp ? new Date(u.timestamp.seconds * 1000).toLocaleDateString() : 'N/A')
           }));
 
           setUsers(mappedUsers);
