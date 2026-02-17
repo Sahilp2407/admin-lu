@@ -503,11 +503,7 @@ const OverviewContent = ({ users }) => {
           <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.4rem', color: '#4d7c0f' }}>
               <span>LetsUpgrade</span>
-              <span style={{ fontWeight: '700' }}>{users.filter(u => (!u.utm_source || u.utm_source === 'N/A') && (!u.utm_campaign || !u.utm_campaign.toLowerCase().includes('gs'))).length}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#4d7c0f' }}>
-              <span>GrowthSchool</span>
-              <span style={{ fontWeight: '700' }}>{users.filter(u => (!u.utm_source || u.utm_source === 'N/A') && (u.utm_campaign && u.utm_campaign.toLowerCase().includes('gs'))).length}</span>
+              <span style={{ fontWeight: '700' }}>{users.filter(u => (!u.utm_source || u.utm_source === 'N/A')).length}</span>
             </div>
           </div>
         </div>
@@ -524,11 +520,7 @@ const OverviewContent = ({ users }) => {
           <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.4rem', color: '#4338ca' }}>
               <span>LetsUpgrade</span>
-              <span style={{ fontWeight: '700' }}>{users.filter(u => (u.utm_source && u.utm_source !== 'N/A') && (!u.utm_campaign || !u.utm_campaign.toLowerCase().includes('gs'))).length}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: '#4338ca' }}>
-              <span>GrowthSchool</span>
-              <span style={{ fontWeight: '700' }}>{users.filter(u => (u.utm_source && u.utm_source !== 'N/A') && (u.utm_campaign && u.utm_campaign.toLowerCase().includes('gs'))).length}</span>
+              <span style={{ fontWeight: '700' }}>{users.filter(u => (u.utm_source && u.utm_source !== 'N/A')).length}</span>
             </div>
           </div>
         </div>
