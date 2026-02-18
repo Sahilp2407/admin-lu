@@ -476,7 +476,7 @@ const UserDetailModal = ({ user, onClose }) => {
   );
 };
 
-const OverviewContent = ({ users }) => {
+const OverviewContent = ({ users, freeUsers, paidUsers, onCardClick }) => {
   // --- Dynamic Stats Calculation ---
   const totalUsers = users.length;
   const activeUsers = users.filter(u => u.status === 'Active').length;
@@ -570,39 +570,64 @@ const OverviewContent = ({ users }) => {
         ))}
       </div>
 
-      {/* -- New Paid vs Unpaid Section -- */}
+      {/* -- Website Source Section -- */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '2rem', marginBottom: '1rem' }}>
-        {/* Unpaid Card */}
-        <div className="stats-card" style={{ background: 'linear-gradient(135deg, #ecfccb 0%, #f7fee7 100%)', border: '1px solid #d9f99d' }}>
+
+        {/* Free Website Card — lp.letsupgrade.in */}
+        <div
+          className="stats-card"
+          onClick={() => onCardClick && onCardClick('free')}
+          style={{
+            background: 'linear-gradient(135deg, #ecfccb 0%, #f7fee7 100%)',
+            border: '1px solid #d9f99d',
+            cursor: 'pointer',
+            transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.10)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = ''; }}
+        >
           <div className="card-label" style={{ color: '#3f6212', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>Unpaid Traffic</span>
-            <span style={{ fontSize: '0.75rem', background: '#d9f99d', padding: '2px 8px', borderRadius: '12px' }}>Organic</span>
+            <span>Free Gen AI Course</span>
+            <span style={{ fontSize: '0.72rem', background: '#d9f99d', padding: '2px 8px', borderRadius: '12px', fontWeight: '700' }}>Organic</span>
           </div>
           <div className="card-value" style={{ color: '#365314' }}>
-            {users.filter(u => (!u.utm_source || u.utm_source === 'N/A')).length}
+            {freeUsers.length}
           </div>
           <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '0.75rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.4rem', color: '#4d7c0f' }}>
-              <span>LetsUpgrade</span>
-              <span style={{ fontWeight: '700' }}>{users.filter(u => (!u.utm_source || u.utm_source === 'N/A')).length}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '0.4rem', color: '#4d7c0f', fontWeight: '600' }}>
+              <span>🌐 lp.letsupgrade.in</span>
+              <span style={{ fontWeight: '700' }}>{freeUsers.length}</span>
             </div>
+            <div style={{ fontSize: '0.75rem', color: '#65a30d', marginTop: '0.5rem', fontWeight: '600' }}>Click to view enquiries →</div>
           </div>
         </div>
 
-        {/* Paid Card */}
-        <div className="stats-card" style={{ background: 'linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%)', border: '1px solid #c7d2fe' }}>
+        {/* Paid Website Card — ai.letsupgrade.in */}
+        <div
+          className="stats-card"
+          onClick={() => onCardClick && onCardClick('paid')}
+          style={{
+            background: 'linear-gradient(135deg, #e0e7ff 0%, #eef2ff 100%)',
+            border: '1px solid #c7d2fe',
+            cursor: 'pointer',
+            transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.10)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = ''; }}
+        >
           <div className="card-label" style={{ color: '#3730a3', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>Paid Traffic</span>
-            <span style={{ fontSize: '0.75rem', background: '#c7d2fe', padding: '2px 8px', borderRadius: '12px' }}>Ad Campaigns</span>
+            <span>AI Program</span>
+            <span style={{ fontSize: '0.72rem', background: '#c7d2fe', padding: '2px 8px', borderRadius: '12px', fontWeight: '700' }}>Paid</span>
           </div>
           <div className="card-value" style={{ color: '#312e81' }}>
-            {users.filter(u => u.utm_source && u.utm_source !== 'N/A').length}
+            {paidUsers.length}
           </div>
           <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '0.75rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '0.4rem', color: '#4338ca' }}>
-              <span>LetsUpgrade</span>
-              <span style={{ fontWeight: '700' }}>{users.filter(u => (u.utm_source && u.utm_source !== 'N/A')).length}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '0.4rem', color: '#4338ca', fontWeight: '600' }}>
+              <span>🌐 ai.letsupgrade.in</span>
+              <span style={{ fontWeight: '700' }}>{paidUsers.length}</span>
             </div>
+            <div style={{ fontSize: '0.75rem', color: '#4f46e5', marginTop: '0.5rem', fontWeight: '600' }}>Click to view enquiries →</div>
           </div>
         </div>
       </div>
@@ -721,217 +746,545 @@ const OverviewContent = ({ users }) => {
   );
 };
 
-const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser }) => {
+const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter, onClearFilter }) => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'sheet'
+  const [viewMode, setViewMode] = useState('list');
+  const [showFilters, setShowFilters] = useState(false);
 
-  const filteredUsers = users.filter(user =>
+  // Filter state
+  const [utmFilter, setUtmFilter] = useState(null);       // null | 'organic' | 'inorganic'
+  const [sortKey, setSortKey] = useState('date');
+  const [sortDir, setSortDir] = useState('desc');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [nameAlpha, setNameAlpha] = useState('');          // '' | 'asc' | 'desc'
+
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortDir('asc');
+    }
+  };
+
+  const SortIcon = ({ colKey }) => {
+    if (sortKey !== colKey) return <span style={{ opacity: 0.3, marginLeft: '4px', fontSize: '0.7rem' }}>↕</span>;
+    return <span style={{ marginLeft: '4px', fontSize: '0.7rem', color: '#2563eb' }}>{sortDir === 'asc' ? '↑' : '↓'}</span>;
+  };
+
+  const resetAllFilters = () => {
+    onClearFilter && onClearFilter();
+    setUtmFilter(null);
+    setSortKey('date');
+    setSortDir('desc');
+    setDateFrom('');
+    setDateTo('');
+    setNameAlpha('');
+  };
+
+  // Count active filters (excluding default sort)
+  const activeFilterCount = [
+    trafficFilter,
+    utmFilter,
+    dateFrom,
+    dateTo,
+    nameAlpha,
+    (sortKey !== 'date' || sortDir !== 'desc') ? 'sort' : null,
+  ].filter(Boolean).length;
+
+  // Step 1: Filter by website source
+  const sourceFiltered = trafficFilter === 'paid'
+    ? users.filter(u => u._source === 'paid')
+    : trafficFilter === 'free'
+      ? users.filter(u => u._source === 'free')
+      : users;
+
+  // Step 2: Filter by traffic type
+  const trafficFiltered = utmFilter === 'organic'
+    ? sourceFiltered.filter(u => !u.utm_source || u.utm_source === 'N/A')
+    : utmFilter === 'inorganic'
+      ? sourceFiltered.filter(u => u.utm_source && u.utm_source !== 'N/A')
+      : sourceFiltered;
+
+  // Step 3: Filter by date range
+  const dateFiltered = trafficFiltered.filter(u => {
+    if (!dateFrom && !dateTo) return true;
+    const d = new Date(u.date);
+    if (dateFrom && d < new Date(dateFrom)) return false;
+    if (dateTo && d > new Date(dateTo + 'T23:59:59')) return false;
+    return true;
+  });
+
+  // Step 4: Search
+  const searchFiltered = dateFiltered.filter(user =>
     (user.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (user.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (user.org || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Step 5: Sort
+  const filteredUsers = [...searchFiltered].sort((a, b) => {
+    // Name alpha override
+    if (nameAlpha) {
+      const aName = (a.name || '').toLowerCase();
+      const bName = (b.name || '').toLowerCase();
+      if (aName < bName) return nameAlpha === 'asc' ? -1 : 1;
+      if (aName > bName) return nameAlpha === 'asc' ? 1 : -1;
+      return 0;
+    }
+    let aVal = a[sortKey] || '';
+    let bVal = b[sortKey] || '';
+    if (sortKey === 'date') {
+      return sortDir === 'asc' ? new Date(aVal) - new Date(bVal) : new Date(bVal) - new Date(aVal);
+    }
+    aVal = String(aVal).toLowerCase();
+    bVal = String(bVal).toLowerCase();
+    if (aVal < bVal) return sortDir === 'asc' ? -1 : 1;
+    if (aVal > bVal) return sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  // Pill helper
+  const Pill = ({ label, color = '#2563eb', bg = '#eff6ff', onRemove }) => (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+      padding: '0.25rem 0.7rem', borderRadius: '20px', fontSize: '0.78rem',
+      fontWeight: '700', background: bg, color, border: `1.5px solid ${color}22`
+    }}>
+      {label}
+      <span onClick={onRemove} style={{ cursor: 'pointer', opacity: 0.6, fontWeight: '900', marginLeft: '2px' }}>×</span>
+    </span>
+  );
+
   return (
     <div className="animate-fade-in" style={{ padding: '0 0.5rem' }}>
+
+      {/* ── TOP BAR ── */}
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '2.5rem',
-        padding: '1rem',
-        background: 'rgba(255, 255, 255, 0.5)',
-        borderRadius: '16px',
-        backdropFilter: 'blur(8px)'
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+        marginBottom: '1.5rem', padding: '1rem 1.25rem',
+        background: 'rgba(255,255,255,0.6)', borderRadius: '16px', backdropFilter: 'blur(8px)',
+        flexWrap: 'wrap', gap: '0.75rem'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderLeft: '4px solid #2563eb', paddingLeft: '1rem' }}>
-          <div>
-            <h2 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#1e293b', lineHeight: '1.2' }}>Enquiry Management</h2>
-            <p style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: '500', marginTop: '4px' }}>Manage and view user admission queries</p>
-          </div>
+        {/* Left: title */}
+        <div style={{ borderLeft: '4px solid #2563eb', paddingLeft: '1rem' }}>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: '800', color: '#1e293b', lineHeight: '1.2' }}>Enquiry Management</h2>
+          <p style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '500', marginTop: '4px' }}>
+            {filteredUsers.length} of {users.length} enquiries
+          </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <div style={{ position: 'relative', width: '320px' }}>
-            <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+        {/* Right: search + filter btn + view toggle */}
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Search */}
+          <div style={{ position: 'relative' }}>
+            <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
             <input
               type="text"
-              placeholder="Search by name, email or org..."
+              placeholder="Search name, email, org..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
-                width: '100%',
-                padding: '0.85rem 1rem 0.85rem 3rem',
-                borderRadius: '14px',
-                border: '1.5px solid #e2e8f0',
-                outline: 'none',
-                backgroundColor: 'white',
-                fontSize: '0.95rem',
-                color: '#1e293b',
-                transition: 'all 0.2s ease',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
+                width: '240px', padding: '0.7rem 1rem 0.7rem 2.5rem',
+                borderRadius: '12px', border: '1.5px solid #e2e8f0',
+                outline: 'none', backgroundColor: 'white',
+                fontSize: '0.88rem', color: '#1e293b', transition: 'all 0.2s ease',
               }}
               className="search-input-premium"
             />
           </div>
+
+          {/* Filter Button */}
+          <button
+            onClick={() => setShowFilters(f => !f)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              padding: '0.7rem 1.1rem', borderRadius: '12px',
+              border: `2px solid ${showFilters ? '#2563eb' : '#e2e8f0'}`,
+              background: showFilters ? '#eff6ff' : 'white',
+              color: showFilters ? '#2563eb' : '#475569',
+              fontWeight: '700', fontSize: '0.88rem', cursor: 'pointer',
+              transition: 'all 0.2s ease', position: 'relative'
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="4" y1="6" x2="20" y2="6" /><line x1="8" y1="12" x2="16" y2="12" /><line x1="11" y1="18" x2="13" y2="18" />
+            </svg>
+            Filters
+            {activeFilterCount > 0 && (
+              <span style={{
+                position: 'absolute', top: '-8px', right: '-8px',
+                background: '#ef4444', color: 'white', borderRadius: '50%',
+                width: '20px', height: '20px', fontSize: '0.7rem', fontWeight: '800',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: '2px solid white'
+              }}>{activeFilterCount}</span>
+            )}
+          </button>
+
+          {/* View toggle */}
           <button
             onClick={() => setViewMode(viewMode === 'list' ? 'sheet' : 'list')}
             className="primary-btn"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.85rem 1.25rem',
-              whiteSpace: 'nowrap',
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              padding: '0.7rem 1.1rem', whiteSpace: 'nowrap',
               background: viewMode === 'sheet' ? '#1e293b' : '#10b981',
-              boxShadow: viewMode === 'sheet' ? '0 4px 12px rgba(30, 41, 59, 0.2)' : '0 4px 12px rgba(16, 185, 129, 0.2)'
+              boxShadow: viewMode === 'sheet' ? '0 4px 12px rgba(30,41,59,0.2)' : '0 4px 12px rgba(16,185,129,0.2)'
             }}
           >
-            {viewMode === 'list' ? (
-              <>
-                <FileSpreadsheet size={18} /> View in Sheets
-              </>
-            ) : (
-              <>
-                <LayoutDashboard size={18} /> View List
-              </>
-            )}
+            {viewMode === 'list' ? <><FileSpreadsheet size={16} /> Sheets</> : <><LayoutDashboard size={16} /> List</>}
           </button>
         </div>
       </div>
 
-      <div className="content-card" style={{ padding: '0', overflow: 'hidden', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05)' }}>
-        {viewMode === 'list' ? (
-          <table className="user-table" style={{ width: '100%' }}>
-            <thead style={{ background: '#f8fafc' }}>
-              <tr>
-                <th style={{ padding: '1.25rem 2rem' }}>NAME & CONTACT</th>
-                <th>DESIGNATION</th>
-                <th>ORGANIZATION</th>
-                <th style={{ textAlign: 'center' }}>ACTION</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.length > 0 ? filteredUsers.map((user) => (
-                <tr key={user.id} className="user-row" style={{ borderBottom: '1px solid #f1f5f9', transition: 'background-color 0.2s ease' }}>
-                  <td style={{ padding: '1.25rem 2rem' }}>
-                    <div
-                      style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer' }}
-                      onClick={() => setSelectedUser(user)}
-                      className="user-name-cell"
-                    >
-                      <div style={{
-                        width: '42px',
-                        height: '42px',
-                        borderRadius: '12px',
-                        background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '15px',
-                        fontWeight: '800',
-                        color: '#2563eb',
-                        boxShadow: 'inset 0 2px 4px rgba(37, 99, 235, 0.05)',
-                        border: '1px solid rgba(37, 99, 235, 0.1)'
-                      }}>
-                        {user.name ? user.name.charAt(0) : '?'}
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>{user.name || 'No Name'}</div>
-                        <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '500', marginTop: '2px' }}>{user.email || 'No Email'}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td style={{ fontSize: '0.9rem', color: '#475569', fontWeight: '600' }}>{user.designation || '-'}</td>
-                  <td style={{ fontSize: '0.9rem', color: '#475569', fontWeight: '500' }}>{user.org || '-'}</td>
-                  <td style={{ textAlign: 'center' }}>
-                    <button
-                      className="view-details-btn"
-                      onClick={() => setSelectedUser(user)}
-                      style={{
-                        background: '#2563eb',
-                        border: 'none',
-                        color: 'white',
-                        padding: '0.65rem 1.25rem',
-                        borderRadius: '12px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.75rem',
-                        fontSize: '0.85rem',
-                        fontWeight: '700',
-                        boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)',
-                        margin: '0 auto',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      <Eye size={16} />
-                      View Details
-                    </button>
-                  </td>
-                </tr>
-              )) : (
-                <tr>
-                  <td colSpan="4" style={{ textAlign: 'center', padding: '4rem', color: '#94a3b8' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-                      <Search size={48} strokeWidth={1} style={{ opacity: 0.2 }} />
-                      <span style={{ fontWeight: '500', fontSize: '1.1rem' }}>No enquiries found Matching your search.</span>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        ) : (
-          <div style={{ overflowX: 'auto', width: '100%' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', backgroundColor: 'white' }}>
-              <thead>
-                <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #e2e8f0' }}>
-                  {['Date', 'Name', 'Email', 'Phone', 'Designation', 'Organization', 'State', 'City', 'CTC', 'UTM Source', 'UTM Medium', 'UTM Campaign', 'UTM Term', 'UTM Content'].map((header) => (
-                    <th key={header} style={{
-                      padding: '0.75rem',
-                      textAlign: 'left',
-                      fontWeight: '700',
-                      color: '#475569',
-                      borderRight: '1px solid #e2e8f0',
-                      whiteSpace: 'nowrap',
-                      borderBottom: '1px solid #cbd5e1'
-                    }}>
-                      {header}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.length > 0 ? filteredUsers.map((user, index) => (
-                  <tr key={user.id} style={{ backgroundColor: index % 2 === 0 ? 'white' : '#f8fafc' }}>
-                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '600', whiteSpace: 'nowrap' }}>{user.date}</td>
-                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '600', whiteSpace: 'nowrap' }}>{user.name}</td>
-                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.email}</td>
-                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569', whiteSpace: 'nowrap' }}>{user.phone}</td>
-                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.designation}</td>
-                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.org}</td>
-                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.state}</td>
-                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.city}</td>
-                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.currentCTC || '-'}</td>
-                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_source}</td>
-                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_medium}</td>
-                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_campaign}</td>
-                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_term}</td>
-                    <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_content}</td>
-                  </tr>
-                )) : (
-                  <tr>
-                    <td colSpan="14" style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
-                      No data found to display in sheet view.
-                    </td>
-                  </tr>
+      {/* ── ACTIVE FILTER CHIPS ── */}
+      {activeFilterCount > 0 && (
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: '600' }}>Active:</span>
+          {trafficFilter === 'free' && <Pill label="🌱 Free Website" color="#16a34a" bg="#f0fdf4" onRemove={() => onClearFilter && onClearFilter()} />}
+          {trafficFilter === 'paid' && <Pill label="💰 Paid Website" color="#7c3aed" bg="#f5f3ff" onRemove={() => onClearFilter && onClearFilter()} />}
+          {utmFilter === 'organic' && <Pill label="🍃 Organic" color="#059669" bg="#ecfdf5" onRemove={() => setUtmFilter(null)} />}
+          {utmFilter === 'inorganic' && <Pill label="📢 Inorganic" color="#7c3aed" bg="#f5f3ff" onRemove={() => setUtmFilter(null)} />}
+          {dateFrom && <Pill label={`From: ${dateFrom}`} color="#0369a1" bg="#f0f9ff" onRemove={() => setDateFrom('')} />}
+          {dateTo && <Pill label={`To: ${dateTo}`} color="#0369a1" bg="#f0f9ff" onRemove={() => setDateTo('')} />}
+          {nameAlpha && <Pill label={`Name: ${nameAlpha === 'asc' ? 'A → Z' : 'Z → A'}`} color="#b45309" bg="#fffbeb" onRemove={() => setNameAlpha('')} />}
+          {(sortKey !== 'date' || sortDir !== 'desc') && !nameAlpha && (
+            <Pill label={`Sort: ${sortKey} ${sortDir === 'asc' ? '↑' : '↓'}`} color="#475569" bg="#f8fafc" onRemove={() => { setSortKey('date'); setSortDir('desc'); }} />
+          )}
+          <button onClick={resetAllFilters} style={{
+            fontSize: '0.78rem', color: '#ef4444', fontWeight: '700', background: 'none',
+            border: 'none', cursor: 'pointer', padding: '0.2rem 0.5rem', textDecoration: 'underline'
+          }}>Clear all</button>
+        </div>
+      )}
+
+      {/* ── LAYOUT: filter panel + table ── */}
+      <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+
+        {/* ── FILTER PANEL (Flipkart style) ── */}
+        {showFilters && (
+          <div style={{
+            width: '260px', flexShrink: 0,
+            background: 'white', borderRadius: '16px',
+            border: '1.5px solid #e2e8f0',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
+            overflow: 'hidden',
+            position: 'sticky', top: '1rem'
+          }}>
+            {/* Panel header */}
+            <div style={{
+              padding: '1rem 1.25rem', borderBottom: '1px solid #f1f5f9',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              background: 'linear-gradient(135deg, #1e293b, #334155)'
+            }}>
+              <span style={{ fontWeight: '800', fontSize: '0.95rem', color: 'white' }}>🎛️ Filters</span>
+              <button onClick={resetAllFilters} style={{
+                fontSize: '0.75rem', color: '#94a3b8', background: 'none',
+                border: 'none', cursor: 'pointer', fontWeight: '700'
+              }}>Reset all</button>
+            </div>
+
+            {/* ── Section: Website ── */}
+            <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #f1f5f9' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>Website</div>
+              {[{ val: null, label: 'All Websites', icon: '🌐' }, { val: 'free', label: 'lp.letsupgrade.in', icon: '🌱' }, { val: 'paid', label: 'ai.letsupgrade.in', icon: '💰' }].map(({ val, label, icon }) => (
+                <label key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.45rem 0', cursor: 'pointer' }}>
+                  <input
+                    type="radio" name="website" checked={trafficFilter === val}
+                    onChange={() => onClearFilter && onClearFilter(val)}
+                    style={{ accentColor: '#2563eb', width: '15px', height: '15px' }}
+                  />
+                  <span style={{ fontSize: '0.88rem', color: '#334155', fontWeight: '600' }}>{icon} {label}</span>
+                </label>
+              ))}
+            </div>
+
+            {/* ── Section: Traffic Type ── */}
+            <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #f1f5f9' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>Traffic Type</div>
+              {[{ val: null, label: 'All Traffic', icon: '📊' }, { val: 'organic', label: 'Organic', icon: '🍃' }, { val: 'inorganic', label: 'Inorganic', icon: '📢' }].map(({ val, label, icon }) => (
+                <label key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.45rem 0', cursor: 'pointer' }}>
+                  <input
+                    type="radio" name="traffic" checked={utmFilter === val}
+                    onChange={() => setUtmFilter(val)}
+                    style={{ accentColor: '#059669', width: '15px', height: '15px' }}
+                  />
+                  <span style={{ fontSize: '0.88rem', color: '#334155', fontWeight: '600' }}>{icon} {label}</span>
+                </label>
+              ))}
+            </div>
+
+            {/* ── Section: Sort By ── */}
+            <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #f1f5f9' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>Sort By</div>
+              {[
+                { key: 'date', dir: 'desc', label: 'Newest First', icon: '🕐' },
+                { key: 'date', dir: 'asc', label: 'Oldest First', icon: '🕰️' },
+                { key: 'name', dir: 'asc', label: 'Name A → Z', icon: '🔤' },
+                { key: 'name', dir: 'desc', label: 'Name Z → A', icon: '🔡' },
+                { key: 'org', dir: 'asc', label: 'Org A → Z', icon: '🏢' },
+              ].map(({ key, dir, label, icon }) => (
+                <label key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.45rem 0', cursor: 'pointer' }}>
+                  <input
+                    type="radio" name="sort"
+                    checked={sortKey === key && sortDir === dir && !nameAlpha}
+                    onChange={() => { setSortKey(key); setSortDir(dir); setNameAlpha(''); }}
+                    style={{ accentColor: '#7c3aed', width: '15px', height: '15px' }}
+                  />
+                  <span style={{ fontSize: '0.88rem', color: '#334155', fontWeight: '600' }}>{icon} {label}</span>
+                </label>
+              ))}
+            </div>
+
+            {/* ── Section: Date Range ── */}
+            <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #f1f5f9' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>Date Range</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600', display: 'block', marginBottom: '3px' }}>From</label>
+                  <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                    style={{ width: '100%', padding: '0.45rem 0.6rem', borderRadius: '8px', border: '1.5px solid #e2e8f0', fontSize: '0.82rem', color: '#334155', outline: 'none' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600', display: 'block', marginBottom: '3px' }}>To</label>
+                  <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+                    style={{ width: '100%', padding: '0.45rem 0.6rem', borderRadius: '8px', border: '1.5px solid #e2e8f0', fontSize: '0.82rem', color: '#334155', outline: 'none' }}
+                  />
+                </div>
+                {(dateFrom || dateTo) && (
+                  <button onClick={() => { setDateFrom(''); setDateTo(''); }} style={{ fontSize: '0.75rem', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: '700', padding: 0 }}>✕ Clear dates</button>
                 )}
-              </tbody>
-            </table>
+              </div>
+            </div>
+
+            {/* ── Section: Name Alphabetical ── */}
+            <div style={{ padding: '1rem 1.25rem' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>Name Order</div>
+              {[{ val: '', label: 'Default', icon: '—' }, { val: 'asc', label: 'A → Z', icon: '🔼' }, { val: 'desc', label: 'Z → A', icon: '🔽' }].map(({ val, label, icon }) => (
+                <label key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.45rem 0', cursor: 'pointer' }}>
+                  <input
+                    type="radio" name="nameAlpha" checked={nameAlpha === val}
+                    onChange={() => setNameAlpha(val)}
+                    style={{ accentColor: '#b45309', width: '15px', height: '15px' }}
+                  />
+                  <span style={{ fontSize: '0.88rem', color: '#334155', fontWeight: '600' }}>{icon} {label}</span>
+                </label>
+              ))}
+            </div>
           </div>
         )}
-      </div>
+
+        {/* ── TABLE AREA ── */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+
+          <div className="content-card" style={{ padding: '0', overflow: 'hidden', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05)' }}>
+            {viewMode === 'list' ? (
+              <table className="user-table" style={{ width: '100%' }}>
+                <thead style={{ background: '#f8fafc' }}>
+                  <tr>
+                    {[
+                      { label: 'NAME & CONTACT', key: 'name', style: { padding: '1.25rem 2rem' } },
+                      { label: 'DESIGNATION', key: 'designation' },
+                      { label: 'ORGANIZATION', key: 'org' },
+                      { label: 'TRAFFIC SOURCE', key: 'utm_source', style: { textAlign: 'center' } },
+                      { label: 'DATE', key: 'date', style: { textAlign: 'center' } },
+                      { label: 'ACTION', key: null, style: { textAlign: 'center' } },
+                    ].map(({ label, key, style }) => (
+                      <th
+                        key={label}
+                        onClick={() => key && handleSort(key)}
+                        style={{
+                          ...style,
+                          cursor: key ? 'pointer' : 'default',
+                          userSelect: 'none',
+                          whiteSpace: 'nowrap',
+                          color: sortKey === key ? '#2563eb' : undefined,
+                          transition: 'color 0.15s ease',
+                        }}
+                      >
+                        {label}{key && <SortIcon colKey={key} />}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.length > 0 ? filteredUsers.map((user) => (
+                    <tr key={user.id} className="user-row" style={{ borderBottom: '1px solid #f1f5f9', transition: 'background-color 0.2s ease' }}>
+                      <td style={{ padding: '1.25rem 2rem' }}>
+                        <div
+                          style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer' }}
+                          onClick={() => setSelectedUser(user)}
+                          className="user-name-cell"
+                        >
+                          <div style={{
+                            width: '42px',
+                            height: '42px',
+                            borderRadius: '12px',
+                            background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '15px',
+                            fontWeight: '800',
+                            color: '#2563eb',
+                            boxShadow: 'inset 0 2px 4px rgba(37, 99, 235, 0.05)',
+                            border: '1px solid rgba(37, 99, 235, 0.1)'
+                          }}>
+                            {user.name ? user.name.charAt(0) : '?'}
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: '700', color: '#1e293b', fontSize: '0.95rem' }}>{user.name || 'No Name'}</div>
+                            <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: '500', marginTop: '2px' }}>{user.email || 'No Email'}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ fontSize: '0.9rem', color: '#475569', fontWeight: '600' }}>{user.designation || '-'}</td>
+                      <td style={{ fontSize: '0.9rem', color: '#475569', fontWeight: '500' }}>{user.org || '-'}</td>
+                      <td style={{ textAlign: 'center' }}>
+                        {(() => {
+                          const isPaid = user.utm_source && user.utm_source !== 'N/A';
+                          return (
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              padding: '0.35rem 0.85rem',
+                              borderRadius: '20px',
+                              fontSize: '0.78rem',
+                              fontWeight: '700',
+                              letterSpacing: '0.02em',
+                              background: isPaid ? 'linear-gradient(135deg, #ede9fe, #ddd6fe)' : 'linear-gradient(135deg, #dcfce7, #bbf7d0)',
+                              color: isPaid ? '#6d28d9' : '#15803d',
+                              border: isPaid ? '1px solid #c4b5fd' : '1px solid #86efac',
+                            }}>
+                              <span style={{
+                                width: '6px', height: '6px', borderRadius: '50%',
+                                background: isPaid ? '#7c3aed' : '#16a34a',
+                                display: 'inline-block'
+                              }} />
+                              {isPaid ? 'Inorganic' : 'Organic'}
+                            </span>
+                          );
+                        })()}
+                      </td>
+                      <td style={{ textAlign: 'center', fontSize: '0.82rem', color: '#64748b', fontWeight: '500' }}>{user.date}</td>
+                      <td style={{ textAlign: 'center' }}>
+                        <button
+                          className="view-details-btn"
+                          onClick={() => setSelectedUser(user)}
+                          style={{
+                            background: '#2563eb',
+                            border: 'none',
+                            color: 'white',
+                            padding: '0.65rem 1.25rem',
+                            borderRadius: '12px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.75rem',
+                            fontSize: '0.85rem',
+                            fontWeight: '700',
+                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)',
+                            margin: '0 auto',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          <Eye size={16} />
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: 'center', padding: '4rem', color: '#94a3b8' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                          <Search size={48} strokeWidth={1} style={{ opacity: 0.2 }} />
+                          <span style={{ fontWeight: '500', fontSize: '1.1rem' }}>No enquiries found Matching your search.</span>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            ) : (
+              <div style={{ overflowX: 'auto', width: '100%' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', backgroundColor: 'white' }}>
+                  <thead>
+                    <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #e2e8f0' }}>
+                      {[
+                        { label: 'Date', key: 'date' },
+                        { label: 'Name', key: 'name' },
+                        { label: 'Email', key: 'email' },
+                        { label: 'Phone', key: 'phone' },
+                        { label: 'Designation', key: 'designation' },
+                        { label: 'Organization', key: 'org' },
+                        { label: 'State', key: 'state' },
+                        { label: 'City', key: 'city' },
+                        { label: 'CTC', key: 'currentCTC' },
+                        { label: 'UTM Source', key: 'utm_source' },
+                        { label: 'UTM Medium', key: 'utm_medium' },
+                        { label: 'UTM Campaign', key: 'utm_campaign' },
+                        { label: 'UTM Term', key: 'utm_term' },
+                        { label: 'UTM Content', key: 'utm_content' },
+                      ].map(({ label, key }) => (
+                        <th
+                          key={label}
+                          onClick={() => handleSort(key)}
+                          style={{
+                            padding: '0.75rem',
+                            textAlign: 'left',
+                            fontWeight: '700',
+                            color: sortKey === key ? '#2563eb' : '#475569',
+                            borderRight: '1px solid #e2e8f0',
+                            whiteSpace: 'nowrap',
+                            borderBottom: '1px solid #cbd5e1',
+                            cursor: 'pointer',
+                            userSelect: 'none',
+                            transition: 'color 0.15s ease',
+                            background: sortKey === key ? '#eff6ff' : undefined,
+                          }}
+                        >
+                          {label}<SortIcon colKey={key} />
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.length > 0 ? filteredUsers.map((user, index) => (
+                      <tr key={user.id} style={{ backgroundColor: index % 2 === 0 ? 'white' : '#f8fafc' }}>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '600', whiteSpace: 'nowrap' }}>{user.date}</td>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '600', whiteSpace: 'nowrap' }}>{user.name}</td>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.email}</td>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569', whiteSpace: 'nowrap' }}>{user.phone}</td>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.designation}</td>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.org}</td>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.state}</td>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.city}</td>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.currentCTC || '-'}</td>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_source}</td>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_medium}</td>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_campaign}</td>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_term}</td>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#64748b' }}>{user.utm_content}</td>
+                      </tr>
+                    )) : (
+                      <tr>
+                        <td colSpan="14" style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
+                          No data found to display in sheet view.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div> {/* end table area */}
+      </div> {/* end flex layout */}
 
       {selectedUser && (
         <UserDetailModal
@@ -951,6 +1304,9 @@ function App() {
 
   const [activeTab, setActiveTab] = useState('overview');
   const [users, setUsers] = useState([]);
+  const [freeUsers, setFreeUsers] = useState([]);
+  const [paidUsers, setPaidUsers] = useState([]);
+  const [trafficFilter, setTrafficFilter] = useState(null); // null | 'free' | 'paid'
 
   // Auth Listener
   useEffect(() => {
@@ -980,11 +1336,11 @@ function App() {
 
         // Fetch data when authenticated
         try {
-          const rawEnquiries = await fetchEnquiries();
+          const { freeEnquiries, paidEnquiries, allEnquiries } = await fetchEnquiries();
 
-          // Map fields to match table structure
-          const mappedUsers = rawEnquiries.map(u => ({
+          const mapUser = (u) => ({
             id: u.id,
+            _source: u._source, // 'free' or 'paid'
             name: u.name || u.fullName || 'No Name',
             email: u.email || 'No Email',
             phone: u.phone || u.phoneNumber || 'N/A',
@@ -1000,9 +1356,15 @@ function App() {
             utm_term: u.utm_term || 'N/A',
             utm_content: u.utm_content || 'N/A',
             date: u.createdAt ? new Date(u.createdAt.seconds * 1000).toLocaleDateString() : (u.timestamp ? new Date(u.timestamp.seconds * 1000).toLocaleDateString() : 'N/A')
-          }));
+          });
 
-          setUsers(mappedUsers);
+          const mappedAll = allEnquiries.map(mapUser);
+          const mappedFree = freeEnquiries.map(mapUser);
+          const mappedPaid = paidEnquiries.map(mapUser);
+
+          setUsers(mappedAll);
+          setFreeUsers(mappedFree);
+          setPaidUsers(mappedPaid);
           setLoading(false);
         } catch (error) {
           console.error("Error loading data:", error);
@@ -1089,13 +1451,13 @@ function App() {
           <div className="nav-menu">
             <button
               className={`nav-item ${activeTab === 'overview' ? 'active' : ''}`}
-              onClick={() => setActiveTab('overview')}
+              onClick={() => { setActiveTab('overview'); setTrafficFilter(null); }}
             >
               Overview
             </button>
             <button
               className={`nav-item ${activeTab === 'users' ? 'active' : ''}`}
-              onClick={() => setActiveTab('users')}
+              onClick={() => { setActiveTab('users'); setTrafficFilter(null); }}
             >
               Enquiries
             </button>
@@ -1123,13 +1485,23 @@ function App() {
           )}
 
           {activeTab === 'overview' ? (
-            <OverviewContent users={users} />
+            <OverviewContent
+              users={users}
+              freeUsers={freeUsers}
+              paidUsers={paidUsers}
+              onCardClick={(filter) => {
+                setTrafficFilter(filter);
+                setActiveTab('users');
+              }}
+            />
           ) : (
             <UserContent
               users={users}
               onAddUser={handleAddUser}
               onEditUser={handleEditUser}
               onDeleteUser={handleDeleteUser}
+              trafficFilter={trafficFilter}
+              onClearFilter={(filter) => setTrafficFilter(filter || null)}
             />
           )}
         </div>
