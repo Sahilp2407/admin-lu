@@ -587,15 +587,15 @@ const OverviewContent = ({ users, freeUsers, paidUsers, onCardClick }) => {
           onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = ''; }}
         >
           <div className="card-label" style={{ color: '#3f6212', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>Free Gen AI Course</span>
-            <span style={{ fontSize: '0.72rem', background: '#d9f99d', padding: '2px 8px', borderRadius: '12px', fontWeight: '700' }}>Organic</span>
+            <span>Generative AI Masterclass</span>
+            <span style={{ fontSize: '0.72rem', background: '#d9f99d', padding: '2px 8px', borderRadius: '12px', fontWeight: '700' }}>Free</span>
           </div>
           <div className="card-value" style={{ color: '#365314' }}>
             {freeUsers.length}
           </div>
           <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '0.4rem', color: '#4d7c0f', fontWeight: '600' }}>
-              <span>🌐 lp.letsupgrade.in</span>
+              <span>lp.letsupgrade.in</span>
               <span style={{ fontWeight: '700' }}>{freeUsers.length}</span>
             </div>
             <div style={{ fontSize: '0.75rem', color: '#65a30d', marginTop: '0.5rem', fontWeight: '600' }}>Click to view enquiries →</div>
@@ -616,7 +616,7 @@ const OverviewContent = ({ users, freeUsers, paidUsers, onCardClick }) => {
           onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = ''; }}
         >
           <div className="card-label" style={{ color: '#3730a3', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>AI Program</span>
+            <span>Best AI Program</span>
             <span style={{ fontSize: '0.72rem', background: '#c7d2fe', padding: '2px 8px', borderRadius: '12px', fontWeight: '700' }}>Paid</span>
           </div>
           <div className="card-value" style={{ color: '#312e81' }}>
@@ -624,7 +624,7 @@ const OverviewContent = ({ users, freeUsers, paidUsers, onCardClick }) => {
           </div>
           <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '0.4rem', color: '#4338ca', fontWeight: '600' }}>
-              <span>🌐 ai.letsupgrade.in</span>
+              <span>ai.letsupgrade.in</span>
               <span style={{ fontWeight: '700' }}>{paidUsers.length}</span>
             </div>
             <div style={{ fontSize: '0.75rem', color: '#4f46e5', marginTop: '0.5rem', fontWeight: '600' }}>Click to view enquiries →</div>
@@ -756,9 +756,9 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
   const [utmFilter, setUtmFilter] = useState(null);       // null | 'organic' | 'inorganic'
   const [sortKey, setSortKey] = useState('date');
   const [sortDir, setSortDir] = useState('desc');
+  const [datePreset, setDatePreset] = useState(null); // 'today' | 'tomorrow' | 'last7' | 'last30' | 'custom'
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const [nameAlpha, setNameAlpha] = useState('');          // '' | 'asc' | 'desc'
 
   const handleSort = (key) => {
     if (sortKey === key) {
@@ -779,18 +779,16 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
     setUtmFilter(null);
     setSortKey('date');
     setSortDir('desc');
+    setDatePreset(null);
     setDateFrom('');
     setDateTo('');
-    setNameAlpha('');
   };
 
   // Count active filters (excluding default sort)
   const activeFilterCount = [
     trafficFilter,
     utmFilter,
-    dateFrom,
-    dateTo,
-    nameAlpha,
+    datePreset === 'custom' ? (dateFrom || dateTo) : datePreset,
     (sortKey !== 'date' || sortDir !== 'desc') ? 'sort' : null,
   ].filter(Boolean).length;
 
@@ -808,12 +806,42 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
       ? sourceFiltered.filter(u => u.utm_source && u.utm_source !== 'N/A')
       : sourceFiltered;
 
-  // Step 3: Filter by date range
+  // Step 3: Filter by date preset
   const dateFiltered = trafficFiltered.filter(u => {
-    if (!dateFrom && !dateTo) return true;
-    const d = new Date(u.date);
-    if (dateFrom && d < new Date(dateFrom)) return false;
-    if (dateTo && d > new Date(dateTo + 'T23:59:59')) return false;
+    if (!datePreset) return true;
+
+    // Normalize user date to midnight
+    const userDate = new Date(u.date);
+    userDate.setHours(0, 0, 0, 0);
+
+    // Normalize current date to midnight
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (datePreset === 'today') {
+      return userDate.getTime() === today.getTime();
+    }
+    if (datePreset === 'tomorrow') {
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      return userDate.getTime() === tomorrow.getTime();
+    }
+    if (datePreset === 'last7') {
+      const sevenDaysAgo = new Date(today);
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      return userDate >= sevenDaysAgo && userDate <= today;
+    }
+    if (datePreset === 'last30') {
+      const thirtyDaysAgo = new Date(today);
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      return userDate >= thirtyDaysAgo && userDate <= today;
+    }
+    if (datePreset === 'custom') {
+      const d = new Date(u.date);
+      if (dateFrom && d < new Date(dateFrom)) return false;
+      if (dateTo && d > new Date(dateTo + 'T23:59:59')) return false;
+      return true;
+    }
     return true;
   });
 
@@ -826,14 +854,6 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
 
   // Step 5: Sort
   const filteredUsers = [...searchFiltered].sort((a, b) => {
-    // Name alpha override
-    if (nameAlpha) {
-      const aName = (a.name || '').toLowerCase();
-      const bName = (b.name || '').toLowerCase();
-      if (aName < bName) return nameAlpha === 'asc' ? -1 : 1;
-      if (aName > bName) return nameAlpha === 'asc' ? 1 : -1;
-      return 0;
-    }
     let aVal = a[sortKey] || '';
     let bVal = b[sortKey] || '';
     if (sortKey === 'date') {
@@ -944,14 +964,16 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
       {activeFilterCount > 0 && (
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem', alignItems: 'center' }}>
           <span style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: '600' }}>Active:</span>
-          {trafficFilter === 'free' && <Pill label="🌱 Free Website" color="#16a34a" bg="#f0fdf4" onRemove={() => onClearFilter && onClearFilter()} />}
-          {trafficFilter === 'paid' && <Pill label="💰 Paid Website" color="#7c3aed" bg="#f5f3ff" onRemove={() => onClearFilter && onClearFilter()} />}
-          {utmFilter === 'organic' && <Pill label="🍃 Organic" color="#059669" bg="#ecfdf5" onRemove={() => setUtmFilter(null)} />}
-          {utmFilter === 'inorganic' && <Pill label="📢 Inorganic" color="#7c3aed" bg="#f5f3ff" onRemove={() => setUtmFilter(null)} />}
-          {dateFrom && <Pill label={`From: ${dateFrom}`} color="#0369a1" bg="#f0f9ff" onRemove={() => setDateFrom('')} />}
-          {dateTo && <Pill label={`To: ${dateTo}`} color="#0369a1" bg="#f0f9ff" onRemove={() => setDateTo('')} />}
-          {nameAlpha && <Pill label={`Name: ${nameAlpha === 'asc' ? 'A → Z' : 'Z → A'}`} color="#b45309" bg="#fffbeb" onRemove={() => setNameAlpha('')} />}
-          {(sortKey !== 'date' || sortDir !== 'desc') && !nameAlpha && (
+          {trafficFilter === 'free' && <Pill label="Generative AI Masterclass" color="#16a34a" bg="#f0fdf4" onRemove={() => onClearFilter && onClearFilter()} />}
+          {trafficFilter === 'paid' && <Pill label="Best AI Program" color="#7c3aed" bg="#f5f3ff" onRemove={() => onClearFilter && onClearFilter()} />}
+          {utmFilter === 'organic' && <Pill label="Organic" color="#059669" bg="#ecfdf5" onRemove={() => setUtmFilter(null)} />}
+          {utmFilter === 'inorganic' && <Pill label="Inorganic" color="#7c3aed" bg="#f5f3ff" onRemove={() => setUtmFilter(null)} />}
+          {datePreset === 'today' && <Pill label="Today" color="#0369a1" bg="#f0f9ff" onRemove={() => setDatePreset(null)} />}
+          {datePreset === 'tomorrow' && <Pill label="Tomorrow" color="#0369a1" bg="#f0f9ff" onRemove={() => setDatePreset(null)} />}
+          {datePreset === 'last7' && <Pill label="Last 7 Days" color="#0369a1" bg="#f0f9ff" onRemove={() => setDatePreset(null)} />}
+          {datePreset === 'last30' && <Pill label="One Month" color="#0369a1" bg="#f0f9ff" onRemove={() => setDatePreset(null)} />}
+          {datePreset === 'custom' && (dateFrom || dateTo) && <Pill label={`Date: ${dateFrom || '...'} → ${dateTo || '...'}`} color="#0369a1" bg="#f0f9ff" onRemove={() => { setDatePreset(null); setDateFrom(''); setDateTo(''); }} />}
+          {(sortKey !== 'date' || sortDir !== 'desc') && (
             <Pill label={`Sort: ${sortKey} ${sortDir === 'asc' ? '↑' : '↓'}`} color="#475569" bg="#f8fafc" onRemove={() => { setSortKey('date'); setSortDir('desc'); }} />
           )}
           <button onClick={resetAllFilters} style={{
@@ -980,7 +1002,7 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               background: 'linear-gradient(135deg, #1e293b, #334155)'
             }}>
-              <span style={{ fontWeight: '800', fontSize: '0.95rem', color: 'white' }}>🎛️ Filters</span>
+              <span style={{ fontWeight: '800', fontSize: '0.95rem', color: 'white' }}>Filters</span>
               <button onClick={resetAllFilters} style={{
                 fontSize: '0.75rem', color: '#94a3b8', background: 'none',
                 border: 'none', cursor: 'pointer', fontWeight: '700'
@@ -990,14 +1012,14 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
             {/* ── Section: Website ── */}
             <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #f1f5f9' }}>
               <div style={{ fontSize: '0.72rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>Website</div>
-              {[{ val: null, label: 'All Websites', icon: '🌐' }, { val: 'free', label: 'lp.letsupgrade.in', icon: '🌱' }, { val: 'paid', label: 'ai.letsupgrade.in', icon: '💰' }].map(({ val, label, icon }) => (
+              {[{ val: null, label: 'All Websites' }, { val: 'free', label: 'Generative AI Masterclass' }, { val: 'paid', label: 'Best AI Program' }].map(({ val, label }) => (
                 <label key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.45rem 0', cursor: 'pointer' }}>
                   <input
                     type="radio" name="website" checked={trafficFilter === val}
                     onChange={() => onClearFilter && onClearFilter(val)}
                     style={{ accentColor: '#2563eb', width: '15px', height: '15px' }}
                   />
-                  <span style={{ fontSize: '0.88rem', color: '#334155', fontWeight: '600' }}>{icon} {label}</span>
+                  <span style={{ fontSize: '0.88rem', color: '#334155', fontWeight: '600' }}>{label}</span>
                 </label>
               ))}
             </div>
@@ -1005,76 +1027,52 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
             {/* ── Section: Traffic Type ── */}
             <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #f1f5f9' }}>
               <div style={{ fontSize: '0.72rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>Traffic Type</div>
-              {[{ val: null, label: 'All Traffic', icon: '📊' }, { val: 'organic', label: 'Organic', icon: '🍃' }, { val: 'inorganic', label: 'Inorganic', icon: '📢' }].map(({ val, label, icon }) => (
+              {[{ val: null, label: 'All Traffic' }, { val: 'organic', label: 'Organic' }, { val: 'inorganic', label: 'Inorganic' }].map(({ val, label }) => (
                 <label key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.45rem 0', cursor: 'pointer' }}>
                   <input
                     type="radio" name="traffic" checked={utmFilter === val}
                     onChange={() => setUtmFilter(val)}
                     style={{ accentColor: '#059669', width: '15px', height: '15px' }}
                   />
-                  <span style={{ fontSize: '0.88rem', color: '#334155', fontWeight: '600' }}>{icon} {label}</span>
+                  <span style={{ fontSize: '0.88rem', color: '#334155', fontWeight: '600' }}>{label}</span>
                 </label>
               ))}
             </div>
 
-            {/* ── Section: Sort By ── */}
-            <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #f1f5f9' }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>Sort By</div>
-              {[
-                { key: 'date', dir: 'desc', label: 'Newest First', icon: '🕐' },
-                { key: 'date', dir: 'asc', label: 'Oldest First', icon: '🕰️' },
-                { key: 'name', dir: 'asc', label: 'Name A → Z', icon: '🔤' },
-                { key: 'name', dir: 'desc', label: 'Name Z → A', icon: '🔡' },
-                { key: 'org', dir: 'asc', label: 'Org A → Z', icon: '🏢' },
-              ].map(({ key, dir, label, icon }) => (
-                <label key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.45rem 0', cursor: 'pointer' }}>
-                  <input
-                    type="radio" name="sort"
-                    checked={sortKey === key && sortDir === dir && !nameAlpha}
-                    onChange={() => { setSortKey(key); setSortDir(dir); setNameAlpha(''); }}
-                    style={{ accentColor: '#7c3aed', width: '15px', height: '15px' }}
-                  />
-                  <span style={{ fontSize: '0.88rem', color: '#334155', fontWeight: '600' }}>{icon} {label}</span>
-                </label>
-              ))}
-            </div>
 
             {/* ── Section: Date Range ── */}
             <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #f1f5f9' }}>
               <div style={{ fontSize: '0.72rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>Date Range</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <div>
-                  <label style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600', display: 'block', marginBottom: '3px' }}>From</label>
-                  <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                    style={{ width: '100%', padding: '0.45rem 0.6rem', borderRadius: '8px', border: '1.5px solid #e2e8f0', fontSize: '0.82rem', color: '#334155', outline: 'none' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600', display: 'block', marginBottom: '3px' }}>To</label>
-                  <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
-                    style={{ width: '100%', padding: '0.45rem 0.6rem', borderRadius: '8px', border: '1.5px solid #e2e8f0', fontSize: '0.82rem', color: '#334155', outline: 'none' }}
-                  />
-                </div>
-                {(dateFrom || dateTo) && (
-                  <button onClick={() => { setDateFrom(''); setDateTo(''); }} style={{ fontSize: '0.75rem', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: '700', padding: 0 }}>✕ Clear dates</button>
-                )}
-              </div>
-            </div>
-
-            {/* ── Section: Name Alphabetical ── */}
-            <div style={{ padding: '1rem 1.25rem' }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>Name Order</div>
-              {[{ val: '', label: 'Default', icon: '—' }, { val: 'asc', label: 'A → Z', icon: '🔼' }, { val: 'desc', label: 'Z → A', icon: '🔽' }].map(({ val, label, icon }) => (
-                <label key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.45rem 0', cursor: 'pointer' }}>
+              {[
+                { val: 'today', label: 'Today' },
+                { val: 'tomorrow', label: 'Tomorrow' },
+                { val: 'last7', label: 'Last 7 Days' },
+                { val: 'last30', label: 'One Month' },
+                { val: 'custom', label: 'Custom Date' },
+              ].map(({ val, label }) => (
+                <label key={val} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.45rem 0', cursor: 'pointer' }}>
                   <input
-                    type="radio" name="nameAlpha" checked={nameAlpha === val}
-                    onChange={() => setNameAlpha(val)}
-                    style={{ accentColor: '#b45309', width: '15px', height: '15px' }}
+                    type="radio" name="datePreset" checked={datePreset === val}
+                    onChange={() => setDatePreset(val)}
+                    style={{ accentColor: '#0369a1', width: '15px', height: '15px' }}
                   />
-                  <span style={{ fontSize: '0.88rem', color: '#334155', fontWeight: '600' }}>{icon} {label}</span>
+                  <span style={{ fontSize: '0.88rem', color: '#334155', fontWeight: '600' }}>{label}</span>
                 </label>
               ))}
+              {datePreset === 'custom' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem', paddingLeft: '1.6rem' }}>
+                  <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                    style={{ width: '100%', padding: '0.45rem', borderRadius: '8px', border: '1.5px solid #e2e8f0', fontSize: '0.8rem', color: '#334155' }} />
+                  <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+                    style={{ width: '100%', padding: '0.45rem', borderRadius: '8px', border: '1.5px solid #e2e8f0', fontSize: '0.8rem', color: '#334155' }} />
+                </div>
+              )}
+              {datePreset && (
+                <button onClick={() => setDatePreset(null)} style={{ fontSize: '0.75rem', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontWeight: '700', padding: '0.5rem 0 0 0' }}>✕ Clear date</button>
+              )}
             </div>
+
+
           </div>
         )}
 
@@ -1218,6 +1216,7 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
                       {[
                         { label: 'Date', key: 'date' },
                         { label: 'Name', key: 'name' },
+                        { label: 'Course Name', key: '_source' },
                         { label: 'Email', key: 'email' },
                         { label: 'Phone', key: 'phone' },
                         { label: 'Designation', key: 'designation' },
@@ -1258,6 +1257,9 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
                       <tr key={user.id} style={{ backgroundColor: index % 2 === 0 ? 'white' : '#f8fafc' }}>
                         <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '600', whiteSpace: 'nowrap' }}>{user.date}</td>
                         <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '600', whiteSpace: 'nowrap' }}>{user.name}</td>
+                        <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#1e293b', fontWeight: '500', whiteSpace: 'nowrap' }}>
+                          {user._source === 'free' ? 'Generative AI Masterclass' : user._source === 'paid' ? 'Best AI Program' : '-'}
+                        </td>
                         <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.email}</td>
                         <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569', whiteSpace: 'nowrap' }}>{user.phone}</td>
                         <td style={{ padding: '0.6rem 0.75rem', border: '1px solid #e2e8f0', color: '#475569' }}>{user.designation}</td>
@@ -1273,7 +1275,7 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
                       </tr>
                     )) : (
                       <tr>
-                        <td colSpan="14" style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
+                        <td colSpan="15" style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
                           No data found to display in sheet view.
                         </td>
                       </tr>
