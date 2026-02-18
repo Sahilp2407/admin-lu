@@ -170,6 +170,8 @@ const Login = ({ onLogin }) => {
 
 // --- Components ---
 
+const WEBHOOK_URL = 'https://automations.letsupgrade.net/webhook/ai-for-workingprofessional';
+
 const UserFormModal = ({ user, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -181,6 +183,8 @@ const UserFormModal = ({ user, onClose, onSave }) => {
     designation: '',
     status: 'Active'
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [webhookStatus, setWebhookStatus] = useState(null); // 'success' | 'error' | null
 
   useEffect(() => {
     if (user) {
@@ -193,8 +197,47 @@ const UserFormModal = ({ user, onClose, onSave }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
+    setWebhookStatus(null);
+
+    // Only fire webhook for new user creation (not edits)
+    if (!user) {
+      console.log('[Webhook] Sending form data to webhook:', formData);
+      try {
+        const response = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: formData.name || '',
+            email: formData.email || '',
+            phoneNumber: formData.phone || '',
+            currentStatus: formData.status || '',
+            state: formData.state || '',
+            city: formData.city || '',
+            companyName: formData.org || 'NA',
+            designation: formData.designation || 'NA',
+            url: window.location.href,
+          }),
+        });
+
+        if (response.ok) {
+          console.log('[Webhook] ✅ Success — data sent to webhook.');
+          setWebhookStatus('success');
+        } else {
+          console.warn('[Webhook] ⚠️ Non-OK response:', response.status, response.statusText);
+          setWebhookStatus('error');
+        }
+      } catch (err) {
+        console.error('[Webhook] ❌ Error sending to webhook:', err);
+        setWebhookStatus('error');
+      }
+    }
+
+    setSubmitting(false);
     onSave(formData);
   };
 
@@ -311,9 +354,47 @@ const UserFormModal = ({ user, onClose, onSave }) => {
             </div>
           </div>
 
+          {/* Webhook status feedback */}
+          {webhookStatus === 'success' && (
+            <div style={{
+              background: '#f0fdf4',
+              color: '#16a34a',
+              border: '1px solid #bbf7d0',
+              borderRadius: '10px',
+              padding: '0.75rem 1rem',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              marginTop: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              ✅ Enquiry submitted successfully!
+            </div>
+          )}
+          {webhookStatus === 'error' && (
+            <div style={{
+              background: '#fef2f2',
+              color: '#dc2626',
+              border: '1px solid #fecaca',
+              borderRadius: '10px',
+              padding: '0.75rem 1rem',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              marginTop: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              ⚠️ Webhook failed, but user was saved locally.
+            </div>
+          )}
+
           <div className="modal-footer" style={{ marginTop: '1.5rem', background: 'transparent', padding: '0' }}>
             <button type="button" className="secondary-btn" onClick={onClose}>Cancel</button>
-            <button type="submit" className="primary-btn">{user ? 'Update User' : 'Create User'}</button>
+            <button type="submit" className="primary-btn" disabled={submitting}>
+              {submitting ? 'Submitting...' : (user ? 'Update User' : 'Create User')}
+            </button>
           </div>
         </form>
       </div>
