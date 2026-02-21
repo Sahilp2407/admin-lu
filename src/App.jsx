@@ -756,7 +756,7 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
   const [utmFilter, setUtmFilter] = useState(null);       // null | 'organic' | 'inorganic'
   const [sortKey, setSortKey] = useState('date');
   const [sortDir, setSortDir] = useState('desc');
-  const [datePreset, setDatePreset] = useState(null); // 'today' | 'tomorrow' | 'last7' | 'last30' | 'custom'
+  const [datePreset, setDatePreset] = useState(null); // 'today' | 'yesterday' | 'last7' | 'last30' | 'custom'
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
 
@@ -821,10 +821,10 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
     if (datePreset === 'today') {
       return userDate.getTime() === today.getTime();
     }
-    if (datePreset === 'tomorrow') {
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      return userDate.getTime() === tomorrow.getTime();
+    if (datePreset === 'yesterday') {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      return userDate.getTime() === yesterday.getTime();
     }
     if (datePreset === 'last7') {
       const sevenDaysAgo = new Date(today);
@@ -969,7 +969,7 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
           {utmFilter === 'organic' && <Pill label="Organic" color="#059669" bg="#ecfdf5" onRemove={() => setUtmFilter(null)} />}
           {utmFilter === 'inorganic' && <Pill label="Inorganic" color="#7c3aed" bg="#f5f3ff" onRemove={() => setUtmFilter(null)} />}
           {datePreset === 'today' && <Pill label="Today" color="#0369a1" bg="#f0f9ff" onRemove={() => setDatePreset(null)} />}
-          {datePreset === 'tomorrow' && <Pill label="Tomorrow" color="#0369a1" bg="#f0f9ff" onRemove={() => setDatePreset(null)} />}
+          {datePreset === 'yesterday' && <Pill label="Yesterday" color="#0369a1" bg="#f0f9ff" onRemove={() => setDatePreset(null)} />}
           {datePreset === 'last7' && <Pill label="Last 7 Days" color="#0369a1" bg="#f0f9ff" onRemove={() => setDatePreset(null)} />}
           {datePreset === 'last30' && <Pill label="One Month" color="#0369a1" bg="#f0f9ff" onRemove={() => setDatePreset(null)} />}
           {datePreset === 'custom' && (dateFrom || dateTo) && <Pill label={`Date: ${dateFrom || '...'} → ${dateTo || '...'}`} color="#0369a1" bg="#f0f9ff" onRemove={() => { setDatePreset(null); setDateFrom(''); setDateTo(''); }} />}
@@ -1045,7 +1045,7 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
               <div style={{ fontSize: '0.72rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.6rem' }}>Date Range</div>
               {[
                 { val: 'today', label: 'Today' },
-                { val: 'tomorrow', label: 'Tomorrow' },
+                { val: 'yesterday', label: 'Yesterday' },
                 { val: 'last7', label: 'Last 7 Days' },
                 { val: 'last30', label: 'One Month' },
                 { val: 'custom', label: 'Custom Date' },
@@ -1079,7 +1079,7 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
         {/* ── TABLE AREA ── */}
         <div style={{ flex: 1, minWidth: 0 }}>
 
-          <div className="content-card" style={{ padding: '0', overflow: 'hidden', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05)' }}>
+          <div className="content-card" style={{ padding: '0', overflowX: 'auto', border: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05)' }}>
             {viewMode === 'list' ? (
               <table className="user-table" style={{ width: '100%' }}>
                 <thead style={{ background: '#f8fafc' }}>
@@ -1090,7 +1090,7 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
                       { label: 'ORGANIZATION', key: 'org' },
                       { label: 'TRAFFIC SOURCE', key: 'utm_source', style: { textAlign: 'center' } },
                       { label: 'DATE', key: 'date', style: { textAlign: 'center' } },
-                      { label: 'ACTION', key: null, style: { textAlign: 'center' } },
+                      { label: 'ACTION', key: null, style: { textAlign: 'center', position: 'sticky', right: 0, background: '#f8fafc', boxShadow: '-4px 0 8px rgba(0,0,0,0.02)' } },
                     ].map(({ label, key, style }) => (
                       <th
                         key={label}
@@ -1170,30 +1170,32 @@ const UserContent = ({ users, onAddUser, onEditUser, onDeleteUser, trafficFilter
                         })()}
                       </td>
                       <td style={{ textAlign: 'center', fontSize: '0.82rem', color: '#64748b', fontWeight: '500' }}>{user.date}</td>
-                      <td style={{ textAlign: 'center' }}>
-                        <button
-                          className="view-details-btn"
-                          onClick={() => setSelectedUser(user)}
-                          style={{
-                            background: '#2563eb',
-                            border: 'none',
-                            color: 'white',
-                            padding: '0.65rem 1.25rem',
-                            borderRadius: '12px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.75rem',
-                            fontSize: '0.85rem',
-                            fontWeight: '700',
-                            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)',
-                            margin: '0 auto',
-                            transition: 'all 0.2s ease'
-                          }}
-                        >
-                          <Eye size={16} />
-                          View Details
-                        </button>
+                      <td style={{ textAlign: 'center', position: 'sticky', right: 0, background: 'inherit', boxShadow: '-4px 0 8px rgba(0,0,0,0.02)' }}>
+                        <div style={{ background: 'white', padding: '0.5rem', margin: '-0.5rem' }}> {/* Wrapper to ensure solid background on sticky cell */}
+                          <button
+                            className="view-details-btn"
+                            onClick={() => setSelectedUser(user)}
+                            style={{
+                              background: '#2563eb',
+                              border: 'none',
+                              color: 'white',
+                              padding: '0.65rem 1.25rem',
+                              borderRadius: '12px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.75rem',
+                              fontSize: '0.85rem',
+                              fontWeight: '700',
+                              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)',
+                              margin: '0 auto',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <Eye size={16} />
+                            View Details
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   )) : (
